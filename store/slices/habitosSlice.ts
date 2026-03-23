@@ -28,17 +28,19 @@ const initialState: HabitState = {
 
 type markAsDoneThunkParmas = {
     habitId: string, 
+    token: string,
 }
 
-export const fetchHabitosThunk = createAsyncThunk("habit/fetchHabits", async () => {
-    return await fetchHabits();
+export const fetchHabitosThunk = createAsyncThunk("habit/fetchHabits", async (token: string) => {
+    return await fetchHabits(token);
 });
 
 export const createHabitThunk = createAsyncThunk(
     "habit/createHabit", 
-    async (habitData: { title: string, description: string }, { rejectWithValue }) => {
+    async (habitData: { title: string, description: string, token: string }, { rejectWithValue }) => {
         try {
-            const newHabit = await createHabit(habitData);
+            const { token, ...data } = habitData;
+            const newHabit = await createHabit(data, token);
             return newHabit; // Backend should return the created habit JSON representation
         } catch (error: any) {
              return rejectWithValue(error.message);
@@ -46,9 +48,9 @@ export const createHabitThunk = createAsyncThunk(
     }
 );
 
-export const markAsDoneThunk = createAsyncThunk("habit/markAsDone", async ({habitId}:markAsDoneThunkParmas, { rejectWithValue }) => {
+export const markAsDoneThunk = createAsyncThunk("habit/markAsDone", async ({habitId, token}:markAsDoneThunkParmas, { rejectWithValue }) => {
     
-    const responseJson = await markAsDone(habitId);
+    const responseJson = await markAsDone(habitId, token);
     console.log(responseJson);
 
     // If backend is bypassed, it returns { message: "Habit marked as done" }
@@ -85,6 +87,7 @@ const habitSlice = createSlice({
             const habit = state.habitos.find(h => h._id === action.meta.arg.habitId);
             if (habit) {
                  habit.days = (habit.days || 0) + 1;
+                 habit.lastDone = new Date().toISOString() as any; // update lastDone to trigger UI recalculation
             }
         }).addCase(markAsDoneThunk.rejected, (state, action) => {  
             state.status[action.meta.arg.habitId] = "failed";

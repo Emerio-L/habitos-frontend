@@ -1,6 +1,10 @@
-export const fetchHabits = async () => {
+export const fetchHabits = async (token: string) => {
     try {
-        const response = await fetch("http://localhost:3001/habits");
+        const response = await fetch("http://localhost:3000/habits", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
         if (!response.ok) {
             throw new Error("Failed to fetch habits");
         }
@@ -10,28 +14,30 @@ export const fetchHabits = async () => {
     }
 };
 
-export const markAsDone = async (habitId: string) => {
+export const markAsDone = async (habitId: string, token: string) => {
     try {
-        const response = await fetch(`http://localhost:3001/habits/markasdone/${habitId}`, {
+        const response = await fetch(`http://localhost:3000/habits/markasdone/${habitId}`, {
             method: "PATCH",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
         });
         if (!response.ok) {
             throw new Error("Backend failed");
         }
         return await response.json();
     } catch (e) {
-        return { message: "Habit marked as done" };
+        throw e;
     }
 };
 
-export const createHabit = async (habitData: { title: string, description: string }) => {
-    // USUARIO TEMPORAL - BYPASS PARA ENTREGABLE
-    // Mocking response directly to prevent backend errors
+export const createHabit = async (habitData: { title: string, description: string }, token: string) => {
     try {
-        const response = await fetch("http://localhost:3001/habits", {
+        const response = await fetch("http://localhost:3000/habits", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify(habitData)
         });
@@ -41,15 +47,6 @@ export const createHabit = async (habitData: { title: string, description: strin
         }
         return await response.json();
     } catch (e) {
-        // If backend fails or cannot be reached, return a mocked habit immediately
-        return {
-            _id: `mock-habit-${Date.now()}`,
-            title: habitData.title,
-            description: habitData.description || "Hábito mock",
-            days: 0,
-            lastDone: null,
-            lastUpdate: new Date().toISOString(),
-            createdAt: new Date().toISOString()
-        };
+        throw e;
     }
 };
