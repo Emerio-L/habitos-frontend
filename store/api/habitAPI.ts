@@ -1,6 +1,6 @@
 export const fetchHabits = async (token: string) => {
     try {
-        const response = await fetch("http://localhost:3000/habits", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/habits`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -16,7 +16,7 @@ export const fetchHabits = async (token: string) => {
 
 export const markAsDone = async (habitId: string, token: string) => {
     try {
-        const response = await fetch(`http://localhost:3000/habits/markasdone/${habitId}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/habits/markasdone/${habitId}`, {
             method: "PATCH",
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -33,7 +33,7 @@ export const markAsDone = async (habitId: string, token: string) => {
 
 export const createHabit = async (habitData: { title: string, description: string }, token: string) => {
     try {
-        const response = await fetch("http://localhost:3000/habits", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/habits`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
